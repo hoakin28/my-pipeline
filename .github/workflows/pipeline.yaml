@@ -8,6 +8,7 @@ on:
       - 'conf/**'
       - 'k8s/**'
       - 'wordpress/**'
+      - '.github/**'
 
 jobs:
   deploy:
