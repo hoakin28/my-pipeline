@@ -10,6 +10,9 @@ spec:
     matchLabels:
       app: myapp
   template:
+    metadata:  
+      labels:
+        app: myapp
     spec:
       containers:
         - name: wordpress
