@@ -14,7 +14,7 @@ resource "google_sql_database_instance" "mysql_instance" {
 }
 
 resource "google_sql_user" "myapp_sql" {
-  name     = "myapp_user"
+  name     = "master"
   instance = google_sql_database_instance.mysql_instance.name
   password = random_password.mysql_password.result
 }

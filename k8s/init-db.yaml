@@ -10,19 +10,37 @@ spec:
           image: mysql:8.0
           command: ["sh", "-c"]
           args:
-            - >
-              mysql -h $(WORDPRESS_DB_HOST) -u $(WORDPRESS_DB_USER) -p$(WORDPRESS_DB_PASSWORD) -e "
+            - |
+              mysql -h "$DB_HOST" -u "$ADMIN_USER" -p"$DB_PASSWORD" -e "
+              CREATE USER '$WORDPRESS_DB_USER'@'%' IDENTIFIED WITH mysql_native_password BY '$WORDPRESS_DB_PASSWORD';
               CREATE DATABASE IF NOT EXISTS wordpress;
-              GRANT ALL PRIVILEGES ON wordpress.* TO 'myapp_user'@'%';
+              GRANT ALL PRIVILEGES ON wordpress.* TO '$WORDPRESS_DB_USER'@'%';
               FLUSH PRIVILEGES;"
           env:
-            - name: WORDPRESS_DB_HOST
-              value: "35.200.53.110"
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-host
+            - name: ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-password
             - name: WORDPRESS_DB_USER
-              value: myapp_user
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-user
             - name: WORDPRESS_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-db-secret
+                  name: wordpress-db-credentials
                   key: db-password
       restartPolicy: OnFailure
+

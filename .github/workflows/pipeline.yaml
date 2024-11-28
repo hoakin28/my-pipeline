@@ -38,34 +38,20 @@ jobs:
     - name: Authenticate Docker with GAR
       run: |
         echo "Configuring Docker to authenticate with Google Artifact Registry"
-        #gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev"
         gcloud auth configure-docker "asia-northeast1-docker.pkg.dev"
 
-    # Step 4: Build the Docker container
-        #docker build -t "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}" .
     - name: Build Docker Image
       run: |
         docker build -t  "asia-northeast1-docker.pkg.dev/mysandbox-443010/myapp/myapp-image:${{ github.sha }}" .
-        docker images
 
-    # Step 5: Push the container to GAR
-        #docker push "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}"
     - name: Push Docker Image to GAR
       run: |
         docker push "asia-northeast1-docker.pkg.dev/mysandbox-443010/myapp/myapp-image:${{ github.sha }}"
 
-    # Step 6: Set up kubectl
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
-
-    # Step 7: Configure kubeconfig
     - name: Configure kubeconfig
       run: |
         gcloud container clusters get-credentials myapp-infra --zone asia-northeast1-a
 
-    # Step 8: Deploy to Kubernetes
     - name: Deploy to Kubernetes
       run: |
         sed -i "s|image: .*|image: asia-northeast1-docker.pkg.dev/mysandbox-443010/myapp/myapp-image:${{ github.sha }}|" k8s/myapp-deployment.yaml

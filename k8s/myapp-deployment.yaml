@@ -10,22 +10,18 @@ spec:
     matchLabels:
       app: myapp
   template:
-    metadata:
-      labels:
-        app: myapp
     spec:
       containers:
-        - name: myapp
-          image: wordpress:latest
+        - name: wordpress
+          image: 
           ports:
             - containerPort: 8080
-          env:
-            - name: WORDPRESS_DB_HOST
-              value: "35.200.53.110"
-            - name: WORDPRESS_DB_USER
-              value: myapp_user
-            - name: WORDPRESS_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: wordpress-db-secret
-                  key: db-password
+          volumeMounts:
+            - name: wp-config-volume
+              mountPath: /var/www/html/wp-config.php
+              subPath: wp-config.php
+      volumes:
+        - name: wp-config-volume
+          persistentVolumeClaim:
+            claimName: wp-config-pvc
+

@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wp-config-generator
+spec:
+  template:
+    spec:
+      containers:
+        - name: config-generator
+          image: alpine:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              apk add --no-cache gettext
+              cat <<EOF > /mnt/wp-config/wp-config.php
+              <?php
+              define('DB_NAME', '$(DB_NAME)');
+              define('DB_USER', '$(DB_USER)');
+              define('DB_PASSWORD', '$(DB_PASSWORD)');
+              define('DB_HOST', '$(DB_HOST)');
+              define('DB_CHARSET', 'utf8');
+              define('DB_COLLATE', '');
+              \$table_prefix = 'wp_';
+              if ( ! defined('ABSPATH') )
+                define('ABSPATH', dirname(__FILE__) . '/');
+              require_once(ABSPATH . 'wp-settings.php');
+              EOF
+          env:
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-password
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-credentials
+                  key: db-host
+          volumeMounts:
+            - name: wp-config-volume
+              mountPath: /mnt/wp-config
+      restartPolicy: OnFailure
+      volumes:
+        - name: wp-config-volume
+          persistentVolumeClaim:
+            claimName: wp-config-pvc
+
