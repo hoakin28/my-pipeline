@@ -1,0 +1,63 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'conf/**'
+      - 'k8s/**'
+      - 'wordpress/**'
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Google Cloud SDK
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    # Step 3: Authenticate Docker with GAR
+    - name: Authenticate Docker with GAR
+      run: |
+        echo "Configuring Docker to authenticate with Google Artifact Registry"
+        gcloud auth configure-docker "${{ env.GCP_REGION }}-docker.pkg.dev"
+
+    # Step 4: Build the Docker container
+    - name: Build Docker Image
+      run: |
+        docker build -t "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp:${{ github.sha }}" .
+
+    # Step 5: Push the container to GAR
+    - name: Push Docker Image to GAR
+      run: |
+        docker push "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp:${{ github.sha }}"
+
+    # Step 6: Set up kubectl
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    # Step 7: Configure kubeconfig
+    - name: Configure kubeconfig
+      run: |
+        gcloud container clusters get-credentials myapp-infra --zone asia-northeast1-a
+
+    # Step 8: Deploy to Kubernetes
+    - name: Deploy to Kubernetes
+      run: |
+        sed -i "s|image: .*|image: ${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp:${{ github.sha }}|" k8s/myapp-deployment.yaml
+        kubectl apply -f k8s/
+

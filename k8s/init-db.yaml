@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myapp-db-init
+spec:
+  template:
+    spec:
+      containers:
+        - name: init-container
+          image: mysql:8.0
+          command: ["sh", "-c"]
+          args:
+            - >
+              mysql -h $(WORDPRESS_DB_HOST) -u $(WORDPRESS_DB_USER) -p$(WORDPRESS_DB_PASSWORD) -e "
+              CREATE DATABASE IF NOT EXISTS wordpress;
+              GRANT ALL PRIVILEGES ON wordpress.* TO 'myapp_user'@'%';
+              FLUSH PRIVILEGES;"
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: "35.200.53.110"
+            - name: WORDPRESS_DB_USER
+              value: myapp_user
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress-db-secret
+                  key: db-password
+      restartPolicy: OnFailure
