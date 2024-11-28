@@ -17,19 +17,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the code
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Set up Google Cloud SDK
+    - name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
       with:
-      # project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        install_components: '["kubectl", "docker"]' # Install required components
 
-    # Step 3: Authenticate Docker with GAR
+
     - name: Authenticate Docker with GAR
       run: |
         echo "Configuring Docker to authenticate with Google Artifact Registry"
