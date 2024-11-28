@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && apt-get clean
 
-COPY ./default.conf /etc/nginx/conf.d/default.conf
+COPY ./conf/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /var/www/html
 

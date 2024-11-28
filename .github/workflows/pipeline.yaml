@@ -9,6 +9,7 @@ on:
       - 'k8s/**'
       - 'wordpress/**'
       - '.github/**'
+      - 'Dockerfile'
 
 jobs:
   deploy:
