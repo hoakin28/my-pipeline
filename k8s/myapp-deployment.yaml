@@ -29,4 +29,3 @@ spec:
                 secretKeyRef:
                   name: wordpress-db-secret
                   key: db-password
-
