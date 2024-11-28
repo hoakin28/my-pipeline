@@ -29,7 +29,10 @@ jobs:
       uses: google-github-actions/setup-gcloud@v1
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        install_components: kubectl,docker # Install required components
+        install_components: kubectl
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
 
     - name: Authenticate Docker with GAR
