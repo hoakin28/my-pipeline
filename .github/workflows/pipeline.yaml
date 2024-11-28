@@ -43,7 +43,8 @@ jobs:
     # Step 5: Push the container to GAR
     - name: Push Docker Image to GAR
       run: |
-        docker push "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}"
+        #docker push "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}"
+        docker push "asia-northeast1-docker.pkg.dev/mysandbox-443010/myapp/myapp-image:${{ github.sha }}"
 
     # Step 6: Set up kubectl
     - name: Set up kubectl
