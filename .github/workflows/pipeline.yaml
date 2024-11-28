@@ -32,7 +32,7 @@ jobs:
     - name: Authenticate Docker with GAR
       run: |
         echo "Configuring Docker to authenticate with Google Artifact Registry"
-        gcloud auth configure-docker "${{ secret.GCP_REGION }}-docker.pkg.dev"
+        gcloud auth configure-docker "${{ secrets.GCP_REGION }}-docker.pkg.dev"
 
     # Step 4: Build the Docker container
     - name: Build Docker Image
