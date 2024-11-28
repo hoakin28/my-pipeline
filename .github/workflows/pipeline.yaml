@@ -38,7 +38,8 @@ jobs:
     # Step 4: Build the Docker container
     - name: Build Docker Image
       run: |
-        docker build -t "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}" .
+        #docker build -t "${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/myapp/myapp-image:${{ github.sha }}" .
+        docker build -t  "asia-northeast1-docker.pkg.dev/mysandbox-443010/myapp/myapp-image:${{ github.sha }}" .
 
     # Step 5: Push the container to GAR
     - name: Push Docker Image to GAR
